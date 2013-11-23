@@ -1,5 +1,8 @@
 bin/
 
-*/tags
-
 *.o
+
+tags
+*.swp
+
+.DS_Store
