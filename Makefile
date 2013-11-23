@@ -15,7 +15,7 @@ TO_DELETE = $(filter-out $(SRC) $(TEST), $(shell find ${PROJECT} -maxdepth 1 -mi
 CXX = g++
 CXXFLAGS = -g -O2 -std=c++11
 DIRFLAGS = -I$(SRC) -I$(INCLUDE) -L$(LIB)
-#LIBS = -lgflags -lgtest_main
+LIBS = -lgflags -lgtest_main
 
 # ===================== rules =====================
 
@@ -62,8 +62,12 @@ $(GTEST_LIB): $(GTEST_ZIP)
 	cd $(BUILD)/gtest-1.7.0/make; \
 	make; \
 	./sample1_unittest; \
-	cp gtest_main.a $@
+	cp -r ../include/* $(INCLUDE)/; \
+	cp gtest_main.a $@;
 
 $(GTEST_ZIP):
 	wget https://googletest.googlecode.com/files/gtest-1.7.0.zip -O $@
 
+# ================================================
+
+include $(TEST)/test.mk
