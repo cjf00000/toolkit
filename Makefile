@@ -24,7 +24,7 @@ all: $(DIRECTORIES) libraries
 $(DIRECTORIES):
 	mkdir -p $(BIN) $(BUILD) $(DEPENDENCIES)
 
-libraries: gflags gtest
+libraries: gflags glog gtest
 
 clean: 
 	rm -rf $(BIN)/*
@@ -55,6 +55,8 @@ $(GFLAGS_SRC):
 
 GLOG_SRC = $(DEPENDENCIES)/glog.tar.gz
 GLOG_LIB = $(LIB)/libglog.so
+
+glog: $(GLOG_LIB)
 
 $(GLOG_LIB): $(GLOG_SRC)
 	tar zxvf $< -C $(BUILD)
