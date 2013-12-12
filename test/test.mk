@@ -1,5 +1,5 @@
 
-TEST_LIBS = -pthread
+TEST_LIBS = -lgtest_main
 
 # ===================== rules =====================
 

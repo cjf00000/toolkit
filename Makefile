@@ -15,7 +15,7 @@ TO_DELETE = $(filter-out $(SRC) $(TEST), $(shell find ${PROJECT} -maxdepth 1 -mi
 CXX = g++
 CXXFLAGS = -g -O2 -std=c++11
 INCFLAGS = -I$(SRC) -I$(INCLUDE) 
-LDFLAGS = -L$(LIB) -lgflags -lgtest_main
+LDFLAGS = -L$(LIB) -pthread -lgflags -lglog
 
 # ===================== rules =====================
 

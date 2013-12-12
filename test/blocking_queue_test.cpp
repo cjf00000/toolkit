@@ -1,6 +1,7 @@
 #include "blocking_queue.h"
 
 #include <gtest/gtest.h>
+#include <glog/logging.h>
 
 #include <atomic>
 #include <vector>
@@ -26,11 +27,11 @@ protected:
     pthread_mutex_init(&mutex_, NULL);
     producer_ = new pthread_t[num_producer_];
     consumer_ = new pthread_t[num_consumer_];
-    //LOG(INFO) << "Spawn producer threads";
+    LOG(INFO) << "Spawn producer threads";
     for (int i = 0; i < num_producer_; ++i) {
       pthread_create(producer_ + i, NULL, producer_func, (void*)this);
     }
-    //LOG(INFO) << "Spawn consumer threads";
+    LOG(INFO) << "Spawn consumer threads";
     for (int i = 0; i < num_consumer_; ++i) {
       pthread_create(consumer_ + i, NULL, consumer_func, (void*)this);
     }
@@ -40,15 +41,15 @@ protected:
     for (int i = 0; i < num_producer_; ++i) {
       pthread_join(producer_[i], NULL);
     }
-    //LOG(INFO) << "Producer threads joined";
+    LOG(INFO) << "------- Producer threads joined";
     for (int i = 0; i < num_consumer_; ++i) {
       queue_.Push(-1);
     }
-    //LOG(INFO) << "Sent ternimation signal";
+    LOG(INFO) << "============== Sent ternimation signal";
     for (int i = 0; i < num_consumer_; ++i) {
       pthread_join(consumer_[i], NULL);
     }
-    //LOG(INFO) << "Consumer threads joined";
+    LOG(INFO) << "------- Consumer threads joined";
     if (producer_ != NULL)
       delete[] producer_;
     if (consumer_ != NULL)
