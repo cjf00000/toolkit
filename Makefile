@@ -28,7 +28,7 @@ libraries: gflags glog gtest
 clean: 
 	rm -rf $(BIN)/*
 
-distclean:
+distclean: clean
 	rm -rf $(TO_REMOVE)
 
 # ===================== gflags ===================
