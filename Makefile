@@ -63,7 +63,7 @@ $(GFLAGS_LIB): $(GFLAGS_SRC)
 	make install
 
 $(GFLAGS_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== glog =====================
 
@@ -79,7 +79,7 @@ $(GLOG_LIB): $(GLOG_SRC)
 	make install
 
 $(GLOG_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== gtest ====================
 
@@ -97,7 +97,7 @@ $(GTEST_LIB): $(GTEST_SRC)
 	cp gtest_main.a $@
 
 $(GTEST_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== zeromq ====================
 
@@ -113,7 +113,7 @@ $(ZMQ_LIB): $(ZMQ_SRC)
 	make install
 
 $(ZMQ_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 	wget $(THIRD_PARTY_HOST)/zmq.hpp -P $(THIRD_PARTY_INCLUDE)
 
 # ==================== boost ====================
@@ -130,7 +130,7 @@ $(BOOST_INCLUDE): $(BOOST_SRC)
 	./b2 install
 
 $(BOOST_SRC):
-	wget $(BOOST_HOST)/$(notdir $@) -O $@
+	wget $(BOOST_HOST)/$(@F) -O $@
 
 # ================== gperftools =================
 
@@ -146,7 +146,7 @@ $(GPERFTOOLS_LIB): $(GPERFTOOLS_SRC)
 	make install
 
 $(GPERFTOOLS_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== tbb =====================
 
@@ -163,7 +163,7 @@ $(TBB_LIB): $(TBB_SRC)
 	cp -r include/tbb $(THIRD_PARTY_INCLUDE)/
 
 $(TBB_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # =================== oprofile ===================
 # NOTE: need libpopt-dev binutils-dev
@@ -180,7 +180,7 @@ $(OPROFILE_LIB): $(OPROFILE_SRC)
 	make install
 
 $(OPROFILE_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== sparsehash ==================
 
@@ -196,7 +196,7 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	make install
 
 $(SPARSEHASH_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== libconfig ===================
 
@@ -212,7 +212,7 @@ $(LIBCONFIG_LIB): $(LIBCONFIG_SRC)
 	make install
 
 $(LIBCONFIG_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== yaml-cpp ===================
 
@@ -229,7 +229,7 @@ $(YAMLCPP_LIB): $(YAMLCPP_SRC)
 	cp -r include/* $(THIRD_PARTY_INCLUDE)/
 
 $(YAMLCPP_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 	wget $(THIRD_PARTY_HOST)/$(notdir $(YAMLCPP_MK)) -P $(THIRD_PARTY_SRC)
 
 # ==================== leveldb ===================
@@ -247,5 +247,5 @@ $(LEVELDB_LIB): $(LEVELDB_SRC)
 	cp -r include/* $(THIRD_PARTY_INCLUDE)/
 
 $(LEVELDB_SRC):
-	wget $(THIRD_PARTY_HOST)/$(notdir $@) -O $@
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
