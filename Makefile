@@ -4,17 +4,22 @@ BIN = $(PROJECT)/bin
 SRC = $(PROJECT)/src
 TEST = $(PROJECT)/test
 THIRD_PARTY = $(PROJECT)/third_party
+
 THIRD_PARTY_SRC = $(THIRD_PARTY)/src
 THIRD_PARTY_LIB = $(THIRD_PARTY)/lib
 THIRD_PARTY_INCLUDE = $(THIRD_PARTY)/include
-THIRD_PARTY_HOST = https://github.com/xunzheng/third_party/raw/master
-BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
-# boost is too heavy for git to host...
 
-NEED_MKDIR = $(BIN) $(THIRD_PARTY_SRC)
+# boost is too heavy for git to host...
+THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
+BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
+
+NEED_MKDIR = $(BIN) \
+             $(THIRD_PARTY_SRC) \
+             $(THIRD_PARTY_LIB) \
+             $(THIRD_PARTY_INCLUDE)
 
 CXX = g++
-CXXFLAGS = -g -O2 -std=c++11 -fno-omit-frame-pointer
+CXXFLAGS = -g -O3 -std=c++11 -fno-omit-frame-pointer
 INCFLAGS = -I$(SRC) -I$(THIRD_PARTY_INCLUDE) 
 LDFLAGS = -L$(THIRD_PARTY_LIB) -pthread -lgflags -lglog
 
@@ -22,7 +27,7 @@ LDFLAGS = -L$(THIRD_PARTY_LIB) -pthread -lgflags -lglog
 
 all: $(NEED_MKDIR) libraries
 
-libraries: gflags glog gtest
+libraries: gflags glog gperftools protobuf
 #libraries: gflags \
            glog \
            gtest \
@@ -30,11 +35,8 @@ libraries: gflags glog gtest
            boost \
            gperftools \
            tbb \
-           oprofile \
            sparsehash \
-           libconfig \
-           yaml-cpp \
-           leveldb
+           protobuf
 
 $(NEED_MKDIR):
 	mkdir -p $@
@@ -150,7 +152,7 @@ $(GPERFTOOLS_SRC):
 
 # ===================== tbb =====================
 
-TBB_SRC = $(THIRD_PARTY_SRC)/tbb42_20131118oss.tgz
+TBB_SRC = $(THIRD_PARTY_SRC)/tbb42_20130725oss.tgz
 TBB_LIB = $(THIRD_PARTY_LIB)/libtbb.so
 
 tbb: $(TBB_LIB)
@@ -163,23 +165,6 @@ $(TBB_LIB): $(TBB_SRC)
 	cp -r include/tbb $(THIRD_PARTY_INCLUDE)/
 
 $(TBB_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
-
-# =================== oprofile ===================
-# NOTE: need libpopt-dev binutils-dev
-
-OPROFILE_SRC = $(THIRD_PARTY_SRC)/oprofile-0.9.9.tar.gz
-OPROFILE_LIB = $(THIRD_PARTY_LIB)/oprofile
-
-oprofile: $(OPROFILE_LIB)
-
-$(OPROFILE_LIB): $(OPROFILE_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
-	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY); \
-	make install
-
-$(OPROFILE_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== sparsehash ==================
@@ -198,54 +183,19 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 $(SPARSEHASH_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
-# ==================== libconfig ===================
+# ================== protobuf ==================
 
-LIBCONFIG_SRC = $(THIRD_PARTY_SRC)/libconfig-1.4.9.tar.gz
-LIBCONFIG_LIB = $(THIRD_PARTY_LIB)/libconfig++.so
+PROTOBUF_SRC = $(THIRD_PARTY_SRC)/protobuf-2.5.0.tar.bz2
+PROTOBUF_LIB = $(THIRD_PARTY_LIB)/libprotobuf.so
 
-libconfig: $(LIBCONFIG_LIB)
+protobuf: $(PROTOBUF_LIB)
 
-$(LIBCONFIG_LIB): $(LIBCONFIG_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
+$(PROTOBUF_LIB): $(PROTOBUF_SRC)
+	tar jxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
 	make install
 
-$(LIBCONFIG_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
-
-# ==================== yaml-cpp ===================
-
-YAMLCPP_SRC = $(THIRD_PARTY_SRC)/yaml-cpp-0.5.1.tar.gz
-YAMLCPP_MK = $(THIRD_PARTY_SRC)/yaml-cpp.mk
-YAMLCPP_LIB = $(THIRD_PARTY_LIB)/libyaml-cpp.a
-
-yaml-cpp: boost $(YAMLCPP_LIB)
-
-$(YAMLCPP_LIB): $(YAMLCPP_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
-	cd $(basename $(basename $<)); \
-	make -f $(YAMLCPP_MK) BOOST_PREFIX=$(THIRD_PARTY) TARGET=$@; \
-	cp -r include/* $(THIRD_PARTY_INCLUDE)/
-
-$(YAMLCPP_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
-	wget $(THIRD_PARTY_HOST)/$(notdir $(YAMLCPP_MK)) -P $(THIRD_PARTY_SRC)
-
-# ==================== leveldb ===================
-
-LEVELDB_SRC = $(THIRD_PARTY_SRC)/leveldb-1.15.0.tar.gz
-LEVELDB_LIB = $(THIRD_PARTY_LIB)/libleveldb.so
-
-leveldb: $(LEVELDB_LIB)
-
-$(LEVELDB_LIB): $(LEVELDB_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
-	cd $(basename $(basename $<)); \
-	make; \
-	cp ./libleveldb.* $(THIRD_PARTY_LIB)/; \
-	cp -r include/* $(THIRD_PARTY_INCLUDE)/
-
-$(LEVELDB_SRC):
+$(PROTOBUF_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
