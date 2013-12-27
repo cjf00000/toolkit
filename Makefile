@@ -27,8 +27,8 @@ LDFLAGS = -L$(THIRD_PARTY_LIB) -pthread -lgflags -lglog
 
 all: $(NEED_MKDIR) libraries
 
-libraries: gflags glog gperftools protobuf
-#libraries: gflags \
+#libraries: gflags glog gperftools protobuf
+libraries: gflags \
            glog \
            gtest \
            zeromq \
@@ -36,6 +36,7 @@ libraries: gflags glog gperftools protobuf
            gperftools \
            tbb \
            sparsehash \
+           oprofile \
            protobuf
 
 $(NEED_MKDIR):
@@ -47,7 +48,7 @@ clean:
 distclean: clean
 	rm -rf $(THIRD_PARTY)
 
-.PHONY: libraries
+.PHONY: all libraries clean distclean
 
 include $(TEST)/test.mk
 
@@ -181,6 +182,23 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	make install
 
 $(SPARSEHASH_SRC):
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# =================== oprofile ===================
+# NOTE: need libpopt-dev binutils-dev
+
+OPROFILE_SRC = $(THIRD_PARTY_SRC)/oprofile-0.9.9.tar.gz
+OPROFILE_LIB = $(THIRD_PARTY_LIB)/oprofile
+
+oprofile: $(OPROFILE_LIB)
+
+$(OPROFILE_LIB): $(OPROFILE_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	./configure --prefix=$(THIRD_PARTY); \
+	make install
+
+$(OPROFILE_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== protobuf ==================
