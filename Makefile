@@ -23,12 +23,13 @@ CXXFLAGS = -g -O3 -std=c++11 -fno-omit-frame-pointer
 INCFLAGS = -I$(SRC) -I$(THIRD_PARTY_INCLUDE) 
 LDFLAGS = -L$(THIRD_PARTY_LIB) -pthread -lgflags -lglog
 
-# ===================== rules =====================
+# ================= principal rules ==================
 
-all: $(NEED_MKDIR) libraries
+all: path libraries foo
 
-#libraries: gflags glog gperftools protobuf
-libraries: gflags \
+libraries: path gflags
+#libraries: path \
+           gflags \
            glog \
            gtest \
            zeromq \
@@ -39,6 +40,8 @@ libraries: gflags \
            oprofile \
            protobuf
 
+path: $(NEED_MKDIR)
+
 $(NEED_MKDIR):
 	mkdir -p $@
 
@@ -48,7 +51,8 @@ clean:
 distclean: clean
 	rm -rf $(THIRD_PARTY)
 
-.PHONY: all libraries clean distclean
+.PHONY: all path libraries clean distclean
+
 
 include $(TEST)/test.mk
 

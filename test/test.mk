@@ -1,13 +1,13 @@
 
-TEST_LIBS = -lgtest_main
+TEST_LDFLAGS = $(LDFLAGS) -lgtest_main
 
-# ===================== rules =====================
+TEST_SRC = $(wildcard $(TEST)/*.cc)
+TEST = $(TEST_SRC:$(TEST)/%.cc=$(BIN)/%)
 
-test_all: test_blocking_queue
+test: $(TEST)
 
-$(BIN)/blocking_queue_test: $(TEST)/blocking_queue_test.cc \
-                            $(SRC)/blocking_queue.h
-	$(CXX) $(CXXFLAGS) $(INCFLAGS) $< $(LDFLAGS) $(TEST_LIBS) -o $@
+$(TEST): $(BIN)/%: $(TEST)/%.cc
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) $< $(TEST_LDFLAGS) -o $@
 
 test_blocking_queue: $(BIN)/blocking_queue_test
 	LD_LIBRARY_PATH=$(LIB) $<
