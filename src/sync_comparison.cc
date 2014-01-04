@@ -164,9 +164,11 @@ void run_with(void (Task::*func)(), std::string&& name) {
 
 int main(int argc, char **argv)
 {
-  if (argv[1]) num_threads = atoi(argv[1]);
-  if (argv[2]) array_size = atoi(argv[2]);
-  if (argv[3]) big_num = atoi(argv[3]);
+  if (argc == 4) {
+    num_threads = atoi(argv[1]);
+    array_size = atoi(argv[2]);
+    big_num = atoi(argv[3]);
+  }
 
   std::cout << "big_num: " << big_num
             << "\tnum_threads: " << num_threads
