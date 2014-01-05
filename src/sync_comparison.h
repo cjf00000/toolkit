@@ -1,35 +1,22 @@
-//
 // Benchmark of various synchronization mechanisms.
 // Author: Xun Zheng (xunzheng at cs.cmu.edu)
 //
-// To compile (boost required): 
-//   g++ -O3 -std=c++11 -I${BOOST_INCLUDE} sync_comparison.cc -o sync_comparison -L${BOOST_LIB} -pthread -lrt -lboost_thread -lboost_system
-//
-// To run:
-//   LD_LIBRARY_PATH+=${BOOST_LIB} ./sync_comparison
-//
 #include <string.h>
-#include <assert.h>
-#include <time.h>
 #include <pthread.h>
-#include <iostream>
-#include <thread>
 #include <mutex>
 #include <atomic>
 #include <string>
 
+#include <glog/logging.h>
 #include <boost/thread.hpp>
 #include <boost/atomic.hpp>
 
-int num_threads = 4;
-int array_size  = 1e+4;
-int big_num     = 1e+7;
-
 class Task {
 public:
-  Task(int array_size)
+  Task(int array_size, int big_num)
       : size_(array_size),
         array_(new int[size_]),
+        big_num_(big_num),
         it_(0),
         atomic_it_(0),
         batomic_it_(0) {
@@ -42,7 +29,7 @@ public:
     pthread_mutex_destroy(&pmutex_);
     pthread_spin_destroy(&spinlock_);
     for (int i = 1; i < size_; ++i) {
-      assert(array_[i] == array_[i-1]);
+      CHECK_EQ(array_[i], array_[i-1]);
     }
     delete[] array_;
   }
@@ -127,7 +114,7 @@ public:
 
 private:
   void spend_time(int index) {
-    for (int i = 0; i < big_num; ++i)
+    for (int i = 0; i < big_num_; ++i)
       array_[index] += i;
   }
 
@@ -135,6 +122,7 @@ private:
   // data
   int size_;
   int *array_;
+  int big_num_;
   // concurrency control
   int it_;
   std::mutex mutex_;
@@ -145,50 +133,3 @@ private:
   boost::atomic<int> batomic_it_;
 };
 
-double get_time() {
-  struct timespec start;
-  clock_gettime(CLOCK_MONOTONIC, &start);
-  return (start.tv_sec + start.tv_nsec/1000000000.0);
-}
-
-void run_with(void (Task::*func)(), std::string&& name) {
-  Task task(array_size);
-  double tik = get_time();
-  std::thread threads[num_threads];
-  for (int t = 0; t < num_threads; ++t)
-    threads[t] = std::thread(func, &task);
-  for (int t = 0; t < num_threads; ++t)
-    threads[t].join();
-  std::cout << name << "\t" << get_time() - tik << " sec\n";
-}
-
-int main(int argc, char **argv)
-{
-  if (argc == 4) {
-    num_threads = atoi(argv[1]);
-    array_size = atoi(argv[2]);
-    big_num = atoi(argv[3]);
-  }
-
-  std::cout << "big_num: " << big_num
-            << "\tnum_threads: " << num_threads
-            << "\tarray_size: " << array_size
-            << std::endl;
-
-  // serial
-  Task task(array_size);
-  double tik = get_time();
-  task.serial();
-  std::cout << "serial\t\t" << get_time() - tik << " sec\n";
-
-  // parallel
-  run_with(&Task::std_mutex, "std::mutex");
-  run_with(&Task::std_atomic, "std::atomic");
-  run_with(&Task::pthread_mutex, "pthread_mutex");
-  run_with(&Task::pthread_spin, "pthread_spin");
-  run_with(&Task::boost_mutex, "boost::mutex");
-  run_with(&Task::boost_atomic, "boost::atomic");
-  run_with(&Task::std_atomic_relaxed_memorder, "atomic_relax");
-
-  return 0;
-}

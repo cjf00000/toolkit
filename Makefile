@@ -21,23 +21,24 @@ NEED_MKDIR = $(BIN) \
 CXX = g++
 CXXFLAGS = -g -O3 -std=c++11 -fno-omit-frame-pointer
 INCFLAGS = -I$(SRC) -I$(THIRD_PARTY_INCLUDE) 
-LDFLAGS = -L$(THIRD_PARTY_LIB) -pthread -lgflags -lglog
+LDFLAGS = -Wl,-rpath,$(THIRD_PARTY_LIB) \
+          -L$(THIRD_PARTY_LIB) \
+          -pthread \
+          -lgflags \
+          -lglog \
+          -lboost_thread \
+          -lboost_system
 
 # ================= principal rules ==================
 
-all: path libraries foo
+all: path libraries
 
-libraries: path gflags
-#libraries: path \
+libraries: path \
            gflags \
            glog \
            gtest \
-           zeromq \
            boost \
            gperftools \
-           tbb \
-           sparsehash \
-           oprofile \
            protobuf
 
 path: $(NEED_MKDIR)
