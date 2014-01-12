@@ -1,10 +1,14 @@
 # boost is too heavy for git to host...
 THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
+BERKELEY_DB_HOST = http://ftp.freebsd.org/pub/FreeBSD/distfiles/bdb
 
 third_party: path \
              gflags \
-             glog
+             glog \
+             boost \
+             tbb \
+             ice
 
 .PHONY: third_party
 
@@ -171,5 +175,64 @@ $(PROTOBUF_LIB): $(PROTOBUF_SRC)
 	make install
 
 $(PROTOBUF_SRC):
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# ==================== mcpp ====================
+
+MCPP_SRC = $(THIRD_PARTY_SRC)/mcpp-2.7.2.tar.gz
+MCPP_LIB = $(THIRD_PARTY_LIB)/libmcpp.a
+
+mcpp: $(MCPP_LIB)
+
+$(MCPP_LIB): $(MCPP_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	./configure CFLAGS=-fPIC \
+                    --enable-mcpplib \
+                    --disable-shared \
+                    --prefix=$(THIRD_PARTY); \
+	make install
+
+$(MCPP_SRC):
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# =================== bzip2 ====================
+
+BZIP2_SRC = $(THIRD_PARTY_SRC)/bzip2-1.0.6.tar.gz
+BZIP2_LIB = $(THIRD_PARTY_LIB)/libbz2.a
+
+bzip2: $(BZIP2_LIB)
+
+$(BZIP2_LIB): $(BZIP2_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	make install PREFIX=$(THIRD_PARTY) \
+                     CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
+
+$(BZIP2_SRC):
+	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# =================== Ice ====================
+
+ICE_SRC = $(THIRD_PARTY_SRC)/Ice-3.5.1.tar.gz
+ICE_LIB = $(THIRD_PARTY_LIB)/libIce.so
+
+ice: mcpp bzip2 $(ICE_LIB)
+
+$(ICE_LIB): $(ICE_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<))/cpp; \
+	sed -i '14c SUBDIRS=config src include'             Makefile; \
+	sed -i '14,28c SUBDIRS=Ice IceUtil Slice'           include/Makefile; \
+	sed -i '22,48c SUBDIRS=IceUtil Slice slice2cpp Ice' src/Makefile; \
+	sed -i "14c prefix=$(THIRD_PARTY)"                  config/Make.rules; \
+	sed -i "20c embedded_runpath_prefix=$(THIRD_PARTY)" config/Make.rules; \
+	sed -i '33c OPTIMIZE=yes'                           config/Make.rules; \
+	sed -i "76c BZIP2_HOME=$(THIRD_PARTY)"              config/Make.rules; \
+	sed -i "102c MCPP_HOME=$(THIRD_PARTY)"              config/Make.rules; \
+	sed -i "149c CPP11=yes"                             config/Make.rules; \
+	make install
+
+$(ICE_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
