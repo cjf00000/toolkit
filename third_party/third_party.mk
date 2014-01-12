@@ -1,7 +1,6 @@
 # boost is too heavy for git to host...
 THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
-BERKELEY_DB_HOST = http://ftp.freebsd.org/pub/FreeBSD/distfiles/bdb
 
 third_party: path \
              gflags \
@@ -33,7 +32,7 @@ $(GFLAGS_SRC):
 GLOG_SRC = $(THIRD_PARTY_SRC)/glog-0.3.3.tar.gz
 GLOG_LIB = $(THIRD_PARTY_LIB)/libglog.so
 
-glog: $(GLOG_LIB)
+glog: gflags $(GLOG_LIB)
 
 $(GLOG_LIB): $(GLOG_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -63,6 +62,7 @@ $(GTEST_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== zeromq ====================
+# NOTE: need uuid-dev
 
 ZMQ_SRC = $(THIRD_PARTY_SRC)/zeromq-3.2.3.tar.gz
 ZMQ_LIB = $(THIRD_PARTY_LIB)/libzmq.so
@@ -178,6 +178,8 @@ $(PROTOBUF_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== mcpp ====================
+# NOTE: this is Ice patched version.
+# See http://www.zeroc.com/download/Ice/3.5/ThirdParty-Sources-3.5.1.tar.gz
 
 MCPP_SRC = $(THIRD_PARTY_SRC)/mcpp-2.7.2.tar.gz
 MCPP_LIB = $(THIRD_PARTY_LIB)/libmcpp.a
@@ -212,7 +214,7 @@ $(BZIP2_LIB): $(BZIP2_SRC)
 $(BZIP2_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
 
-# =================== Ice ====================
+# ==================== Ice =====================
 
 ICE_SRC = $(THIRD_PARTY_SRC)/Ice-3.5.1.tar.gz
 ICE_LIB = $(THIRD_PARTY_LIB)/libIce.so
