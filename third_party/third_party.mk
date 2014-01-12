@@ -2,9 +2,10 @@
 THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
 
-third_party: path \
-             gflags \
+third_party: gflags \
              glog \
+             protobuf \
+             gperftools \
              boost \
              tbb \
              ice
@@ -16,7 +17,7 @@ third_party: path \
 GFLAGS_SRC = $(THIRD_PARTY_SRC)/gflags-2.0.tar.gz
 GFLAGS_LIB = $(THIRD_PARTY_LIB)/libgflags.so
 
-gflags: $(GFLAGS_LIB)
+gflags: path $(GFLAGS_LIB)
 
 $(GFLAGS_LIB): $(GFLAGS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -32,7 +33,7 @@ $(GFLAGS_SRC):
 GLOG_SRC = $(THIRD_PARTY_SRC)/glog-0.3.3.tar.gz
 GLOG_LIB = $(THIRD_PARTY_LIB)/libglog.so
 
-glog: gflags $(GLOG_LIB)
+glog: path gflags $(GLOG_LIB)
 
 $(GLOG_LIB): $(GLOG_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -48,7 +49,7 @@ $(GLOG_SRC):
 GTEST_SRC = $(THIRD_PARTY_SRC)/gtest-1.7.0.zip
 GTEST_LIB = $(THIRD_PARTY_LIB)/libgtest_main.a
 
-gtest: $(GTEST_LIB)
+gtest: path $(GTEST_LIB)
 
 $(GTEST_LIB): $(GTEST_SRC)
 	unzip $< -d $(THIRD_PARTY_SRC)
@@ -67,7 +68,7 @@ $(GTEST_SRC):
 ZMQ_SRC = $(THIRD_PARTY_SRC)/zeromq-3.2.3.tar.gz
 ZMQ_LIB = $(THIRD_PARTY_LIB)/libzmq.so
 
-zeromq: $(ZMQ_LIB)
+zeromq: path $(ZMQ_LIB)
 
 $(ZMQ_LIB): $(ZMQ_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -84,7 +85,7 @@ $(ZMQ_SRC):
 BOOST_SRC = $(THIRD_PARTY_SRC)/boost_1_54_0.tar.bz2
 BOOST_INCLUDE = $(THIRD_PARTY_INCLUDE)/boost
 
-boost: $(BOOST_INCLUDE)
+boost: path $(BOOST_INCLUDE)
 
 $(BOOST_INCLUDE): $(BOOST_SRC)
 	tar jxf $< -C $(THIRD_PARTY_SRC)
@@ -100,7 +101,7 @@ $(BOOST_SRC):
 GPERFTOOLS_SRC = $(THIRD_PARTY_SRC)/gperftools-2.1.tar.gz
 GPERFTOOLS_LIB = $(THIRD_PARTY_LIB)/libtcmalloc.so
 
-gperftools: $(GPERFTOOLS_LIB)
+gperftools: path $(GPERFTOOLS_LIB)
 
 $(GPERFTOOLS_LIB): $(GPERFTOOLS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -116,7 +117,7 @@ $(GPERFTOOLS_SRC):
 TBB_SRC = $(THIRD_PARTY_SRC)/tbb42_20130725oss.tgz
 TBB_LIB = $(THIRD_PARTY_LIB)/libtbb.so
 
-tbb: $(TBB_LIB)
+tbb: path $(TBB_LIB)
 
 $(TBB_LIB): $(TBB_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -133,7 +134,7 @@ $(TBB_SRC):
 SPARSEHASH_SRC = $(THIRD_PARTY_SRC)/sparsehash-2.0.2.tar.gz
 SPARSEHASH_INCLUDE = $(THIRD_PARTY_INCLUDE)/sparsehash
 
-sparsehash: $(SPARSEHASH_INCLUDE)
+sparsehash: path $(SPARSEHASH_INCLUDE)
 
 $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -150,7 +151,7 @@ $(SPARSEHASH_SRC):
 OPROFILE_SRC = $(THIRD_PARTY_SRC)/oprofile-0.9.9.tar.gz
 OPROFILE_LIB = $(THIRD_PARTY_LIB)/oprofile
 
-oprofile: $(OPROFILE_LIB)
+oprofile: path $(OPROFILE_LIB)
 
 $(OPROFILE_LIB): $(OPROFILE_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -166,7 +167,7 @@ $(OPROFILE_SRC):
 PROTOBUF_SRC = $(THIRD_PARTY_SRC)/protobuf-2.5.0.tar.bz2
 PROTOBUF_LIB = $(THIRD_PARTY_LIB)/libprotobuf.so
 
-protobuf: $(PROTOBUF_LIB)
+protobuf: path $(PROTOBUF_LIB)
 
 $(PROTOBUF_LIB): $(PROTOBUF_SRC)
 	tar jxf $< -C $(THIRD_PARTY_SRC)
@@ -184,7 +185,7 @@ $(PROTOBUF_SRC):
 MCPP_SRC = $(THIRD_PARTY_SRC)/mcpp-2.7.2.tar.gz
 MCPP_LIB = $(THIRD_PARTY_LIB)/libmcpp.a
 
-mcpp: $(MCPP_LIB)
+mcpp: path $(MCPP_LIB)
 
 $(MCPP_LIB): $(MCPP_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -203,7 +204,7 @@ $(MCPP_SRC):
 BZIP2_SRC = $(THIRD_PARTY_SRC)/bzip2-1.0.6.tar.gz
 BZIP2_LIB = $(THIRD_PARTY_LIB)/libbz2.a
 
-bzip2: $(BZIP2_LIB)
+bzip2: path $(BZIP2_LIB)
 
 $(BZIP2_LIB): $(BZIP2_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
@@ -219,7 +220,7 @@ $(BZIP2_SRC):
 ICE_SRC = $(THIRD_PARTY_SRC)/Ice-3.5.1.tar.gz
 ICE_LIB = $(THIRD_PARTY_LIB)/libIce.so
 
-ice: mcpp bzip2 $(ICE_LIB)
+ice: path mcpp bzip2 $(ICE_LIB)
 
 $(ICE_LIB): $(ICE_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)

@@ -27,7 +27,7 @@ LDFLAGS = -Wl,-rpath,$(THIRD_PARTY_LIB) \
 
 # ================= principal rules ==================
 
-all: path third_party
+all: third_party
 
 path: $(NEED_MKDIR)
 
