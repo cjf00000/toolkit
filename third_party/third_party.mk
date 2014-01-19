@@ -2,6 +2,7 @@
 THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
 
+# Yahoo-LDA
 third_party: gflags \
              glog \
              protobuf \
@@ -234,7 +235,12 @@ $(ICE_LIB): $(ICE_SRC)
 	sed -i "76c BZIP2_HOME=$(THIRD_PARTY)"              config/Make.rules; \
 	sed -i "102c MCPP_HOME=$(THIRD_PARTY)"              config/Make.rules; \
 	sed -i "149c CPP11=yes"                             config/Make.rules; \
-	make install
+	if [ `uname -m` == "x86_64" -a -d /usr/lib64 ]; then \
+		mv $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
+		make install
+		mv $(THIRD_PARTY_LIB)64 $(THIRD_PARTY_LIB); \
+	else
+		make install
 
 $(ICE_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
