@@ -235,12 +235,13 @@ $(ICE_LIB): $(ICE_SRC)
 	sed -i "76c BZIP2_HOME=$(THIRD_PARTY)"              config/Make.rules; \
 	sed -i "102c MCPP_HOME=$(THIRD_PARTY)"              config/Make.rules; \
 	sed -i "149c CPP11=yes"                             config/Make.rules; \
-	if [ `uname -m` == "x86_64" -a -d /usr/lib64 ]; then \
+	if [ `uname -m` = "x86_64" -a -d /usr/lib64 ]; then \
 		mv $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
-		make install
+		make install; \
 		mv $(THIRD_PARTY_LIB)64 $(THIRD_PARTY_LIB); \
-	else
-		make install
+	else \
+		make install; \
+	fi
 
 $(ICE_SRC):
 	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
