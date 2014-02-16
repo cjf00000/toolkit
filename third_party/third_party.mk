@@ -1,6 +1,7 @@
 # boost is too heavy for git to host...
 THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
+WGET = wget --no-check-certificate
 
 # Yahoo-LDA
 third_party: gflags \
@@ -27,7 +28,7 @@ $(GFLAGS_LIB): $(GFLAGS_SRC)
 	make install
 
 $(GFLAGS_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== glog =====================
 
@@ -43,7 +44,7 @@ $(GLOG_LIB): $(GLOG_SRC)
 	make install
 
 $(GLOG_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== gtest ====================
 
@@ -61,7 +62,7 @@ $(GTEST_LIB): $(GTEST_SRC)
 	cp gtest_main.a $@
 
 $(GTEST_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== zeromq ====================
 # NOTE: need uuid-dev
@@ -78,8 +79,8 @@ $(ZMQ_LIB): $(ZMQ_SRC)
 	make install
 
 $(ZMQ_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
-	wget $(THIRD_PARTY_HOST)/zmq.hpp -P $(THIRD_PARTY_INCLUDE)
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/zmq.hpp -P $(THIRD_PARTY_INCLUDE)
 
 # ==================== boost ====================
 
@@ -95,7 +96,7 @@ $(BOOST_INCLUDE): $(BOOST_SRC)
 	./b2 install
 
 $(BOOST_SRC):
-	wget $(BOOST_HOST)/$(@F) -O $@
+	$(WGET) $(BOOST_HOST)/$(@F) -O $@
 
 # ================== gperftools =================
 
@@ -111,7 +112,7 @@ $(GPERFTOOLS_LIB): $(GPERFTOOLS_SRC)
 	make install
 
 $(GPERFTOOLS_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== tbb =====================
 
@@ -128,7 +129,7 @@ $(TBB_LIB): $(TBB_SRC)
 	cp -r include/tbb $(THIRD_PARTY_INCLUDE)/
 
 $(TBB_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== sparsehash ==================
 
@@ -144,7 +145,7 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	make install
 
 $(SPARSEHASH_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # =================== oprofile ===================
 # NOTE: need libpopt-dev binutils-dev
@@ -161,7 +162,7 @@ $(OPROFILE_LIB): $(OPROFILE_SRC)
 	make install
 
 $(OPROFILE_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== protobuf ==================
 
@@ -177,7 +178,7 @@ $(PROTOBUF_LIB): $(PROTOBUF_SRC)
 	make install
 
 $(PROTOBUF_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== mcpp ====================
 # NOTE: this is Ice patched version.
@@ -198,7 +199,7 @@ $(MCPP_LIB): $(MCPP_SRC)
 	make install
 
 $(MCPP_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # =================== bzip2 ====================
 
@@ -214,7 +215,7 @@ $(BZIP2_LIB): $(BZIP2_SRC)
                      CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
 
 $(BZIP2_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== Ice =====================
 
@@ -244,5 +245,50 @@ $(ICE_LIB): $(ICE_SRC)
 	fi
 
 $(ICE_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# ===================== Armadillo =================
+ARMA_SRC = $(THIRD_PARTY_SRC)/armadillo-3.930.2.tar.gz
+ARMA_LIB = $(THIRD_PARTY_INCLUDE)/armadillo
+
+armadillo: $(ARMA_LIB)
+
+$(ARMA_LIB): $(ARMA_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	cp -r include/* $(THIRD_PARTY_INCLUDE)
+	sed -i '25c \ ' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
+	sed -i '11c #define ARMA_USE_LAPACK' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
+	sed -i '18c #define ARMA_USE_BLAS ' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
+
+$(ARMA_SRC):
+	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/armadillo-3.930.2.tar.gz -O $@
+
+# ===================== OpenBLAS ==================
+OPENBLAS_SRC = $(THIRD_PARTY_SRC)/OpenBLAS.tar.gz
+OPENBLAS_LIB = $(THIRD_PARTY_LIB)/libopenblas.so
+
+openblas: $(OPENBLAS_LIB)
+
+$(OPENBLAS_LIB): $(OPENBLAS_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	make -j; \
+	make install PREFIX=$(THIRD_PARTY)
+
+$(OPENBLAS_SRC):
+	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/OpenBLAS.tar.gz -O $@
+
+# ===================== MPI =======================
+MPI_SRC = $(THIRD_PARTY_SRC)/mpich-3.0.4.tar.gz
+MPI_LIB = $(THIRD_PARTY_LIB)/libmpichcxx.a
+
+mpich: $(MPI_LIB)
+
+$(MPI_LIB): $(MPI_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	./configure --prefix=$(THIRD_PARTY); \
+	make -j 12; \
+	make install
 
