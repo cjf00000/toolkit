@@ -235,7 +235,10 @@ $(ICE_LIB): $(ICE_SRC)
 	sed -i '33c OPTIMIZE=yes'                           config/Make.rules; \
 	sed -i "76c BZIP2_HOME=$(THIRD_PARTY)"              config/Make.rules; \
 	sed -i "102c MCPP_HOME=$(THIRD_PARTY)"              config/Make.rules; \
-	sed -i "149c CPP11=yes"                             config/Make.rules; \
+	sed -i "149c CPP11=yes"                             config/Make.rules; \\
+	sed -i "s/-Werror//g"				    config/Make.rules.Linux; \\
+	sed -i "s/-Werror//g"				    config/Make.rules.MINGW; \\
+	sed -i "s/-Werror//g"				    config/Make.rules.Darwin; 
 	if [ `uname -m` = "x86_64" -a -d /usr/lib64 ]; then \
 		mv $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
 		make -j install; \
