@@ -25,7 +25,7 @@ $(GFLAGS_LIB): $(GFLAGS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	make -j install
 
 $(GFLAGS_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -40,8 +40,8 @@ glog: path gflags $(GLOG_LIB)
 $(GLOG_LIB): $(GLOG_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY) --with-gflags=$(THIRD_PARTY); \
-	make install
+	./configure --enable-frame-pointers --prefix=$(THIRD_PARTY) --with-gflags=$(THIRD_PARTY); \
+	make -j install
 
 $(GLOG_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -56,7 +56,7 @@ gtest: path $(GTEST_LIB)
 $(GTEST_LIB): $(GTEST_SRC)
 	unzip $< -d $(THIRD_PARTY_SRC)
 	cd $(basename $<)/make; \
-	make; \
+	make -j; \
 	./sample1_unittest; \
 	cp -r ../include/* $(THIRD_PARTY_INCLUDE)/; \
 	cp gtest_main.a $@
@@ -76,7 +76,7 @@ $(ZMQ_LIB): $(ZMQ_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	make -j install
 
 $(ZMQ_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -109,7 +109,7 @@ $(GPERFTOOLS_LIB): $(GPERFTOOLS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY) --enable-frame-pointers; \
-	make install
+	make -j install
 
 $(GPERFTOOLS_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -124,7 +124,7 @@ tbb: path $(TBB_LIB)
 $(TBB_LIB): $(TBB_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $<); \
-	make; \
+	make -j; \
 	cp build/*_release/lib* $(THIRD_PARTY_LIB)/; \
 	cp -r include/tbb $(THIRD_PARTY_INCLUDE)/
 
@@ -142,7 +142,7 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	make -j install
 
 $(SPARSEHASH_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -159,7 +159,7 @@ $(OPROFILE_LIB): $(OPROFILE_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	make -j install
 
 $(OPROFILE_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -175,7 +175,7 @@ $(PROTOBUF_LIB): $(PROTOBUF_SRC)
 	tar jxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	make -j install
 
 $(PROTOBUF_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -196,7 +196,7 @@ $(MCPP_LIB): $(MCPP_SRC)
                     --enable-mcpplib \
                     --disable-shared \
                     --prefix=$(THIRD_PARTY); \
-	make install
+	make -j install
 
 $(MCPP_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -211,7 +211,7 @@ bzip2: path $(BZIP2_LIB)
 $(BZIP2_LIB): $(BZIP2_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	make install PREFIX=$(THIRD_PARTY) \
+	make -j install PREFIX=$(THIRD_PARTY) \
                      CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
 
 $(BZIP2_SRC):
@@ -238,10 +238,10 @@ $(ICE_LIB): $(ICE_SRC)
 	sed -i "149c CPP11=yes"                             config/Make.rules; \
 	if [ `uname -m` = "x86_64" -a -d /usr/lib64 ]; then \
 		mv $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
-		make install; \
+		make -j install; \
 		mv $(THIRD_PARTY_LIB)64 $(THIRD_PARTY_LIB); \
 	else \
-		make install; \
+		make -j install; \
 	fi
 
 $(ICE_SRC):
@@ -289,6 +289,6 @@ $(MPI_LIB): $(MPI_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make -j 12; \
+	make -j; \
 	make install
 
