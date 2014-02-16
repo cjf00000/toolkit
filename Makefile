@@ -15,7 +15,7 @@ NEED_MKDIR = $(BIN) \
              $(THIRD_PARTY_INCLUDE)
 
 CXX = g++
-CXXFLAGS = -g -O4 -std=c++11 -fno-omit-frame-pointer
+CXXFLAGS = -g -O4 -std=c++11
 INCFLAGS = -I$(SRC) -I$(THIRD_PARTY_INCLUDE) 
 LDFLAGS = -Wl,-rpath,$(THIRD_PARTY_LIB) \
           -L$(THIRD_PARTY_LIB) \
