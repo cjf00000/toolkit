@@ -7,10 +7,11 @@ WGET = wget --no-check-certificate
 third_party: gflags \
              glog \
              protobuf \
-             gperftools \
              boost \
              tbb \
-             ice
+             ice \
+	     armadillo \
+	     mpich
 
 .PHONY: third_party
 
