@@ -2,6 +2,9 @@
 THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
 
+WGET = wget --no-check-certificate
+MAKE = make -j
+
 # Yahoo-LDA
 third_party: gflags \
              glog \
@@ -24,26 +27,45 @@ $(GFLAGS_LIB): $(GFLAGS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	$(MAKE) install
 
 $(GFLAGS_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# =================== libunwind ===================
+
+LIBUNWIND_SRC = $(THIRD_PARTY_SRC)/libunwind-0.99-beta.tar.gz
+LIBUNWIND_LIB = $(THIRD_PARTY_LIB)/libunwind.so
+
+libunwind: path $(LIBUNWIND_LIB)
+
+$(LIBUNWIND_LIB): $(LIBUNWIND_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	./configure --prefix=$(THIRD_PARTY); \
+	$(MAKE) install
+
+$(LIBUNWIND_SRC):
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== glog =====================
 
 GLOG_SRC = $(THIRD_PARTY_SRC)/glog-0.3.3.tar.gz
 GLOG_LIB = $(THIRD_PARTY_LIB)/libglog.so
 
-glog: path gflags $(GLOG_LIB)
+glog: path gflags libunwind $(GLOG_LIB)
 
 $(GLOG_LIB): $(GLOG_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY) --with-gflags=$(THIRD_PARTY); \
-	make install
+	./configure --prefix=$(THIRD_PARTY) \
+		    --with-gflags=$(THIRD_PARTY) \
+		    CPPFLAGS=-I$(THIRD_PARTY_INCLUDE) \
+		    LDFLAGS=-L$(THIRD_PARTY_LIB); \
+	$(MAKE) install
 
 $(GLOG_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== gtest ====================
 
@@ -55,13 +77,13 @@ gtest: path $(GTEST_LIB)
 $(GTEST_LIB): $(GTEST_SRC)
 	unzip $< -d $(THIRD_PARTY_SRC)
 	cd $(basename $<)/make; \
-	make; \
+	$(MAKE); \
 	./sample1_unittest; \
 	cp -r ../include/* $(THIRD_PARTY_INCLUDE)/; \
 	cp gtest_main.a $@
 
 $(GTEST_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== zeromq ====================
 # NOTE: need uuid-dev
@@ -75,11 +97,11 @@ $(ZMQ_LIB): $(ZMQ_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	$(MAKE) install
 
 $(ZMQ_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
-	wget $(THIRD_PARTY_HOST)/zmq.hpp -P $(THIRD_PARTY_INCLUDE)
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/zmq.hpp -P $(THIRD_PARTY_INCLUDE)
 
 # ==================== boost ====================
 
@@ -95,23 +117,25 @@ $(BOOST_INCLUDE): $(BOOST_SRC)
 	./b2 install
 
 $(BOOST_SRC):
-	wget $(BOOST_HOST)/$(@F) -O $@
+	$(WGET) $(BOOST_HOST)/$(@F) -O $@
 
 # ================== gperftools =================
 
 GPERFTOOLS_SRC = $(THIRD_PARTY_SRC)/gperftools-2.1.tar.gz
 GPERFTOOLS_LIB = $(THIRD_PARTY_LIB)/libtcmalloc.so
 
-gperftools: path $(GPERFTOOLS_LIB)
+gperftools: path libunwind $(GPERFTOOLS_LIB)
 
 $(GPERFTOOLS_LIB): $(GPERFTOOLS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY) --enable-frame-pointers; \
-	make install
+	./configure --prefix=$(THIRD_PARTY) \
+		    CPPFLAGS=-I$(THIRD_PARTY_INCLUDE) \
+		    LDFLAGS=-L$(THIRD_PARTY_LIB); \
+	$(MAKE) install
 
 $(GPERFTOOLS_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== tbb =====================
 
@@ -123,12 +147,12 @@ tbb: path $(TBB_LIB)
 $(TBB_LIB): $(TBB_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $<); \
-	make; \
+	$(MAKE); \
 	cp build/*_release/lib* $(THIRD_PARTY_LIB)/; \
 	cp -r include/tbb $(THIRD_PARTY_INCLUDE)/
 
 $(TBB_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== sparsehash ==================
 
@@ -141,27 +165,10 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	$(MAKE) install
 
 $(SPARSEHASH_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
-
-# =================== oprofile ===================
-# NOTE: need libpopt-dev binutils-dev
-
-OPROFILE_SRC = $(THIRD_PARTY_SRC)/oprofile-0.9.9.tar.gz
-OPROFILE_LIB = $(THIRD_PARTY_LIB)/oprofile
-
-oprofile: path $(OPROFILE_LIB)
-
-$(OPROFILE_LIB): $(OPROFILE_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
-	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY); \
-	make install
-
-$(OPROFILE_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== protobuf ==================
 
@@ -174,10 +181,10 @@ $(PROTOBUF_LIB): $(PROTOBUF_SRC)
 	tar jxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	make install
+	$(MAKE) install
 
 $(PROTOBUF_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== mcpp ====================
 # NOTE: this is Ice patched version.
@@ -195,10 +202,10 @@ $(MCPP_LIB): $(MCPP_SRC)
                     --enable-mcpplib \
                     --disable-shared \
                     --prefix=$(THIRD_PARTY); \
-	make install
+	$(MAKE) install
 
 $(MCPP_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # =================== bzip2 ====================
 
@@ -210,11 +217,11 @@ bzip2: path $(BZIP2_LIB)
 $(BZIP2_LIB): $(BZIP2_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	make install PREFIX=$(THIRD_PARTY) \
-                     CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
+	$(MAKE) install PREFIX=$(THIRD_PARTY) \
+                     	CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
 
 $(BZIP2_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ==================== Ice =====================
 
@@ -236,13 +243,10 @@ $(ICE_LIB): $(ICE_SRC)
 	sed -i "102c MCPP_HOME=$(THIRD_PARTY)"              config/Make.rules; \
 	sed -i "149c CPP11=yes"                             config/Make.rules; \
 	if [ `uname -m` = "x86_64" -a -d /usr/lib64 ]; then \
-		mv $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
-		make install; \
-		mv $(THIRD_PARTY_LIB)64 $(THIRD_PARTY_LIB); \
-	else \
-		make install; \
-	fi
+		ln -s $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
+	fi; \
+	$(MAKE) install
 
 $(ICE_SRC):
-	wget $(THIRD_PARTY_HOST)/$(@F) -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
