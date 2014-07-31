@@ -1,18 +1,17 @@
 # boost is too heavy for git to host...
-THIRD_PARTY_HOST = http://github.com/xunzheng/third_party/raw/master
+THIRD_PARTY_HOST = https://github.com/cjf00000/ScaCTM/releases/download/v1.0
 BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
-
 WGET = wget --no-check-certificate
-MAKE = make -j
 
 # Yahoo-LDA
 third_party: gflags \
              glog \
              protobuf \
-	     gperftools \
              boost \
              tbb \
-             ice
+             ice \
+	     armadillo \
+	     mpich
 
 .PHONY: third_party
 
@@ -27,25 +26,9 @@ $(GFLAGS_LIB): $(GFLAGS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	$(MAKE) install
+	make -j install
 
 $(GFLAGS_SRC):
-	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
-
-# =================== libunwind ===================
-
-LIBUNWIND_SRC = $(THIRD_PARTY_SRC)/libunwind-0.99-beta.tar.gz
-LIBUNWIND_LIB = $(THIRD_PARTY_LIB)/libunwind.so
-
-libunwind: path $(LIBUNWIND_LIB)
-
-$(LIBUNWIND_LIB): $(LIBUNWIND_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
-	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY); \
-	$(MAKE) install
-
-$(LIBUNWIND_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== glog =====================
@@ -53,16 +36,13 @@ $(LIBUNWIND_SRC):
 GLOG_SRC = $(THIRD_PARTY_SRC)/glog-0.3.3.tar.gz
 GLOG_LIB = $(THIRD_PARTY_LIB)/libglog.so
 
-glog: path gflags libunwind $(GLOG_LIB)
+glog: path gflags $(GLOG_LIB)
 
 $(GLOG_LIB): $(GLOG_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY) \
-		    --with-gflags=$(THIRD_PARTY) \
-		    CPPFLAGS=-I$(THIRD_PARTY_INCLUDE) \
-		    LDFLAGS=-L$(THIRD_PARTY_LIB); \
-	$(MAKE) install
+	./configure --enable-frame-pointers --prefix=$(THIRD_PARTY) --with-gflags=$(THIRD_PARTY); \
+	make -j install
 
 $(GLOG_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -77,7 +57,7 @@ gtest: path $(GTEST_LIB)
 $(GTEST_LIB): $(GTEST_SRC)
 	unzip $< -d $(THIRD_PARTY_SRC)
 	cd $(basename $<)/make; \
-	$(MAKE); \
+	make -j; \
 	./sample1_unittest; \
 	cp -r ../include/* $(THIRD_PARTY_INCLUDE)/; \
 	cp gtest_main.a $@
@@ -97,7 +77,7 @@ $(ZMQ_LIB): $(ZMQ_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	$(MAKE) install
+	make -j install
 
 $(ZMQ_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -124,15 +104,13 @@ $(BOOST_SRC):
 GPERFTOOLS_SRC = $(THIRD_PARTY_SRC)/gperftools-2.1.tar.gz
 GPERFTOOLS_LIB = $(THIRD_PARTY_LIB)/libtcmalloc.so
 
-gperftools: path libunwind $(GPERFTOOLS_LIB)
+gperftools: path $(GPERFTOOLS_LIB)
 
 $(GPERFTOOLS_LIB): $(GPERFTOOLS_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	./configure --prefix=$(THIRD_PARTY) \
-		    CPPFLAGS=-I$(THIRD_PARTY_INCLUDE) \
-		    LDFLAGS=-L$(THIRD_PARTY_LIB); \
-	$(MAKE) install
+	./configure --prefix=$(THIRD_PARTY) --enable-frame-pointers; \
+	make -j install
 
 $(GPERFTOOLS_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -147,7 +125,7 @@ tbb: path $(TBB_LIB)
 $(TBB_LIB): $(TBB_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $<); \
-	$(MAKE); \
+	make -j; \
 	cp build/*_release/lib* $(THIRD_PARTY_LIB)/; \
 	cp -r include/tbb $(THIRD_PARTY_INCLUDE)/
 
@@ -165,9 +143,26 @@ $(SPARSEHASH_INCLUDE): $(SPARSEHASH_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	$(MAKE) install
+	make -j install
 
 $(SPARSEHASH_SRC):
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
+
+# =================== oprofile ===================
+# NOTE: need libpopt-dev binutils-dev
+
+OPROFILE_SRC = $(THIRD_PARTY_SRC)/oprofile-0.9.9.tar.gz
+OPROFILE_LIB = $(THIRD_PARTY_LIB)/oprofile
+
+oprofile: path $(OPROFILE_LIB)
+
+$(OPROFILE_LIB): $(OPROFILE_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	./configure --prefix=$(THIRD_PARTY); \
+	make -j install
+
+$(OPROFILE_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ================== protobuf ==================
@@ -181,7 +176,7 @@ $(PROTOBUF_LIB): $(PROTOBUF_SRC)
 	tar jxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
-	$(MAKE) install
+	make -j install
 
 $(PROTOBUF_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -202,7 +197,7 @@ $(MCPP_LIB): $(MCPP_SRC)
                     --enable-mcpplib \
                     --disable-shared \
                     --prefix=$(THIRD_PARTY); \
-	$(MAKE) install
+	make -j install
 
 $(MCPP_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -217,8 +212,8 @@ bzip2: path $(BZIP2_LIB)
 $(BZIP2_LIB): $(BZIP2_SRC)
 	tar zxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
-	$(MAKE) install PREFIX=$(THIRD_PARTY) \
-                     	CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
+	make -j install PREFIX=$(THIRD_PARTY) \
+                     CFLAGS='-O4 -D_FILE_OFFSET_BITS=64 -fPIC'
 
 $(BZIP2_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
@@ -246,10 +241,60 @@ $(ICE_LIB): $(ICE_SRC)
 	sed -i "s/-Werror//g"				    config/Make.rules.MINGW; \
 	sed -i "s/-Werror//g"				    config/Make.rules.Darwin; \
 	if [ `uname -m` = "x86_64" -a -d /usr/lib64 ]; then \
-		ln -s $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
-	fi; \
-	$(MAKE) install
+		mv $(THIRD_PARTY_LIB) $(THIRD_PARTY_LIB)64; \
+		make -j install; \
+		mv $(THIRD_PARTY_LIB)64 $(THIRD_PARTY_LIB); \
+	else \
+		make -j install; \
+	fi
 
 $(ICE_SRC):
 	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
+# ===================== Armadillo =================
+ARMA_SRC = $(THIRD_PARTY_SRC)/armadillo-3.930.2.tar.gz
+ARMA_LIB = $(THIRD_PARTY_INCLUDE)/armadillo
+
+armadillo: $(ARMA_LIB)
+
+$(ARMA_LIB): $(ARMA_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	cp -r include/* $(THIRD_PARTY_INCLUDE)
+	sed -i '25c \ ' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
+	sed -i '11c #define ARMA_USE_LAPACK' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
+	sed -i '18c #define ARMA_USE_BLAS ' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
+
+$(ARMA_SRC):
+	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/armadillo-3.930.2.tar.gz -O $@
+
+# ===================== OpenBLAS ==================
+OPENBLAS_SRC = $(THIRD_PARTY_SRC)/OpenBLAS.tar.gz
+OPENBLAS_LIB = $(THIRD_PARTY_LIB)/libopenblas.so
+
+openblas: $(OPENBLAS_LIB)
+
+$(OPENBLAS_LIB): $(OPENBLAS_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	make -j; \
+	make install PREFIX=$(THIRD_PARTY)
+
+$(OPENBLAS_SRC):
+	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/OpenBLAS.tar.gz -O $@
+
+# ===================== MPI =======================
+MPI_SRC = $(THIRD_PARTY_SRC)/mpich-3.0.4.tar.bz2
+MPI_LIB = $(THIRD_PARTY_LIB)/libmpichcxx.a
+
+mpich: $(MPI_LIB)
+
+$(MPI_LIB): $(MPI_SRC)
+	tar zxf $< -C $(THIRD_PARTY_SRC)
+	cd $(basename $(basename $<)); \
+	./configure --prefix=$(THIRD_PARTY); \
+	make -j; \
+	make install
+
+$(MPI_SRC):
+	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/mpich-3.0.4.tar.gz -O $@
