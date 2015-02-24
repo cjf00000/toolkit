@@ -1,6 +1,6 @@
 # boost is too heavy for git to host...
 THIRD_PARTY_HOST = https://github.com/cjf00000/ScaCTM/releases/download/v1.0
-BOOST_HOST = http://downloads.sourceforge.net/project/boost/boost/1.54.0
+BOOST_HOST = https://github.com/cjf00000/ScaCTM/releases/download/v1.0
 WGET = wget --no-check-certificate
 
 # Yahoo-LDA
@@ -96,8 +96,17 @@ $(BOOST_INCLUDE): $(BOOST_SRC)
 	./bootstrap.sh --with-libraries=system,thread --prefix=$(THIRD_PARTY); \
 	./b2 install
 
-$(BOOST_SRC):
-	$(WGET) $(BOOST_HOST)/$(@F) -O $@
+$(BOOST_SRC): $(THIRD_PARTY_SRC)/boost1 $(THIRD_PARTY_SRC)/boost2 $(THIRD_PARTY_SRC)/boost3 
+	cat $(THIRD_PARTY_SRC)/boost1 $(THIRD_PARTY_SRC)/boost2 $(THIRD_PARTY_SRC)/boost3 > $@
+
+$(THIRD_PARTY_SRC)/boost1:
+	$(WGET) $(BOOST_HOST)/boost1 -O $(THIRD_PARTY_SRC)/boost1
+
+$(THIRD_PARTY_SRC)/boost2:
+	$(WGET) $(BOOST_HOST)/boost2 -O $(THIRD_PARTY_SRC)/boost2
+
+$(THIRD_PARTY_SRC)/boost3:
+	$(WGET) $(BOOST_HOST)/boost3 -O $(THIRD_PARTY_SRC)/boost3
 
 # ================== gperftools =================
 
@@ -266,7 +275,7 @@ $(ARMA_LIB): $(ARMA_SRC)
 	sed -i '18c #define ARMA_USE_BLAS ' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
 
 $(ARMA_SRC):
-	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/armadillo-3.930.2.tar.gz -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F)
 
 # ===================== OpenBLAS ==================
 OPENBLAS_SRC = $(THIRD_PARTY_SRC)/OpenBLAS.tar.gz
@@ -281,7 +290,7 @@ $(OPENBLAS_LIB): $(OPENBLAS_SRC)
 	make install PREFIX=$(THIRD_PARTY)
 
 $(OPENBLAS_SRC):
-	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/OpenBLAS.tar.gz -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F)
 
 # ===================== MPI =======================
 MPI_SRC = $(THIRD_PARTY_SRC)/mpich-3.0.4.tar.bz2
@@ -297,4 +306,4 @@ $(MPI_LIB): $(MPI_SRC)
 	make install
 
 $(MPI_SRC):
-	$(WGET) http://ml-thu.net/~jianfei/static/dependencies/mpich-3.0.4.tar.gz -O $@
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F)
