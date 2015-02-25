@@ -275,7 +275,7 @@ $(ARMA_LIB): $(ARMA_SRC)
 	sed -i '18c #define ARMA_USE_BLAS ' $(THIRD_PARTY_INCLUDE)/armadillo_bits/config.hpp
 
 $(ARMA_SRC):
-	$(WGET) $(THIRD_PARTY_HOST)/$(@F)
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== OpenBLAS ==================
 OPENBLAS_SRC = $(THIRD_PARTY_SRC)/OpenBLAS.tar.gz
@@ -290,7 +290,7 @@ $(OPENBLAS_LIB): $(OPENBLAS_SRC)
 	make install PREFIX=$(THIRD_PARTY)
 
 $(OPENBLAS_SRC):
-	$(WGET) $(THIRD_PARTY_HOST)/$(@F)
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
 
 # ===================== MPI =======================
 MPI_SRC = $(THIRD_PARTY_SRC)/mpich-3.0.4.tar.bz2
@@ -299,11 +299,11 @@ MPI_LIB = $(THIRD_PARTY_LIB)/libmpichcxx.a
 mpich: $(MPI_LIB)
 
 $(MPI_LIB): $(MPI_SRC)
-	tar zxf $< -C $(THIRD_PARTY_SRC)
+	tar jxf $< -C $(THIRD_PARTY_SRC)
 	cd $(basename $(basename $<)); \
 	./configure --prefix=$(THIRD_PARTY); \
 	make -j; \
 	make install
 
 $(MPI_SRC):
-	$(WGET) $(THIRD_PARTY_HOST)/$(@F)
+	$(WGET) $(THIRD_PARTY_HOST)/$(@F) -O $@
